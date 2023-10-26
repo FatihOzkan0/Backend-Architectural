@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Business.Constants;
+using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using Entities.Concrete.DTO_s;
@@ -18,39 +20,52 @@ namespace Business.Concrete
         {
             _productDal = productDal;
         }
-        public void Add(Product product)
+        public IResult Add(Product product)
         {
+            if (product.ProductName.Length < 2)
+            {
+                return new ErrorResult(Message.ProductNameInvalid);
+            }
+
             _productDal.Add(product);
+            return new SuccessResult(Message.ProducAdded);
         }
 
-        public void Delete(Product product)
+        public IResult Delete(Product product)
         {
             _productDal.Delete(product);
+            return new SuccessResult();
         }
 
-        public List<Product> GetAll()
+        public IDataResult<List<Product>> GetAll()
         {
-           return _productDal.GetAll();
+            if (DateTime.Now.Hour == 22)
+            {
+                return new ErrorDataResult<List<Product>>(Message.MaintenanceTime);
+            }
+
+           return new SuccessDataResult<List<Product>>(_productDal.GetAll(),Message.ProductsListed);   //DataResult newledik türümüz List product döndürüyor sonra gelenler data,success,message
         }
 
-        public List<Product> GetAllCategoryId(int id)
+        public IDataResult<List<Product>> GetAllCategoryId(int id)
         {
-            return _productDal.GetAll(p=>p.CategoryId==id);
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p=>p.CategoryId==id));
         }
 
-        public Product GetById(int productİd)
+        public IDataResult<Product> GetById(int productİd)
         {
-            return _productDal.Get(p => p.ProductId == productİd);
+            return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == productİd));
         }
 
-        public List<ProductDto> GetProductsDetails()
+        public IDataResult<List<ProductDto>> GetProductsDetails()
         {
-            return _productDal.GetProductsDto();
+            return new SuccessDataResult<List<ProductDto>>(_productDal.GetProductsDto());
         }
 
-        public void Update(Product product)
+        public IResult Update(Product product)
         {
             _productDal.Update(product);
+            return new SuccessResult();
         }
     }
 }

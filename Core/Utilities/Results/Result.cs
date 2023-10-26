@@ -9,14 +9,14 @@ namespace Core.Utilities.Results
     public class Result : IResult
     {
 
-        public Result(bool success , string message) : this(success)
-        {
-           Message = message;
+        public Result(bool success, string message) : this(success)   //Ben istiyorum ki kullanıcı hem true false alıp mesaj döndürsün hem de sadece isterse true,false döndürsün
+        {                                                            //isterse mesaj girmesin bu yüzden 2 tane const yazıyorum. Yukarıda this ile tekrar success yaazmak yerine 
+            Message = message;                                      //yukarıda ki success i aşağıdan al diyorum.
         }
 
-        public Result (bool succes)
+        public Result(bool succes)
         {
-                Success = succes;
+            Success = succes;
         }
         public string Message { get; }
 

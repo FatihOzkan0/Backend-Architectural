@@ -11,10 +11,25 @@ namespace UI
             ProductManager productManager = new ProductManager(new EfProductDal());
 
             
-            foreach(var product in productManager.GetAll())
+            //foreach(var product in productManager.GetAll())
+            //{
+            //    Console.WriteLine(product.ProductName);
+            //}
+
+            var result = productManager.GetProductsDetails();
+
+            if(result.Success==true)
             {
-                Console.WriteLine(product.ProductName);
+                foreach (var p in result.Data)
+                {
+                    Console.WriteLine(p.ProductName + " - " + p.CategoryName);
+                }
             }
+            else
+            {
+                Console.WriteLine(result.Message);
+            }
+           
         }
     }
 }
