@@ -1,5 +1,8 @@
 ﻿using Business.Abstract;
 using Business.Constants;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
+using Core.CrossCuttingConcerns;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -20,12 +23,13 @@ namespace Business.Concrete
         {
             _productDal = productDal;
         }
+
+        [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            if (product.ProductName.Length < 2)
-            {
-                return new ErrorResult(Message.ProductNameInvalid);
-            }
+            
+
+           // ValidationContext.Validate(new ProductValidator(),product);       Validate işlemini bu şekilde çağırmak yerine AOP attribute kullanarak yapıcam.
 
             _productDal.Add(product);
             return new SuccessResult(Message.ProducAdded);
