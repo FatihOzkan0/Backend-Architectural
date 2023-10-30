@@ -3,6 +3,7 @@ using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns;
+using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -18,21 +19,44 @@ namespace Business.Concrete
     public class ProductManager : IProductService
     {
         IProductDal _productDal;
+        
 
         public ProductManager(IProductDal productDal)
         {
             _productDal = productDal;
         }
 
+        
+        
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            
+           IResult result = BusinessRules.Run(CategorySınır(product), ProductDontRepat(product));
+           if(result != null) //result boş değilse içnde hatalı iş kodu varsa döndür.
+            {
+                return result;
+            }
 
-           // ValidationContext.Validate(new ProductValidator(),product);       Validate işlemini bu şekilde çağırmak yerine AOP attribute kullanarak yapıcam.
-
-            _productDal.Add(product);
+           _productDal.Add(product);
             return new SuccessResult(Message.ProducAdded);
+
+
+
+
+            // ValidationContext.Validate(new ProductValidator(),product);       Validate işlemini bu şekilde çağırmak yerine AOP attribute kullanarak yapıcam.
+
+            
+           /*if (CategorySınır(product).Success)                      iş kodlarını yukarıda yazdığımız iş kodları ile çağırıyoruz bunun yerine.
+            //{
+            //    if(ProductDontRepat(product).Success)
+            //    {
+            //        _productDal.Add(product);
+            //        return new SuccessResult(Message.ProducAdded);
+            //    }
+                
+            }*/
+
+            return new ErrorResult();
         }
 
         public IResult Delete(Product product)
@@ -71,5 +95,31 @@ namespace Business.Concrete
             _productDal.Update(product);
             return new SuccessResult();
         }
+
+                                                      //İŞ KURALI
+
+        private IResult CategorySınır(Product product)
+        {
+            var result = _productDal.GetAll(p=>p.CategoryId==product.CategoryId).Count;
+            if (result > 10)
+            {
+                return new ErrorResult(Message.ProductCountOfCategoryError);
+            }
+            return new SuccessResult();
+        }
+
+        private IResult ProductDontRepat(Product product)
+        {
+            var result = _productDal.GetAll(p => p.ProductName == product.ProductName).Any();
+            if(result==true)
+            {
+                return new ErrorResult(Message.ProductNameRepeatError);
+            }
+
+            return new SuccessResult();
+
+        }
+
+        
     }
 }

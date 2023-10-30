@@ -19,7 +19,9 @@ namespace Business.Autofac
     public class AutofacBusinessModule:Module
     {
         protected override void Load(ContainerBuilder builder)
-        {
+        {  
+                             //IOC YAPILANMASI
+
             builder.RegisterType<ProductManager>().As<IProductService>().SingleInstance();
             builder.RegisterType<EfProductDal>().As<IProductDal>().SingleInstance();
 
